@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Circle the Correct Answer – Uniknya Muzium Mini</title>
+<style>
+:root{--purple:#684fe0;--pink:#ff6494;--yellow:#ffda63;--ink:#26334d}
+*{box-sizing:border-box}body{margin:0;font-family:"Trebuchet MS",Arial,sans-serif;color:var(--ink);background:radial-gradient(circle at 8% 8%,#fff0b9,transparent 25%),radial-gradient(circle at 90% 12%,#d8f5ff,transparent 28%),linear-gradient(135deg,#f8eaff,#e8f8ff 60%,#fff7db);min-height:100vh}
+header{text-align:center;padding:20px 12px 12px}h1{margin:0;color:#573dc7;font-size:clamp(1.8rem,4vw,2.8rem);text-shadow:2px 3px white}.sub{font-weight:bold;color:#64708a;margin:8px 0}
+.wrap{width:min(1180px,96vw);margin:auto}.stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0 18px}.stat{background:white;border:2px solid #eee8ff;border-radius:16px;padding:9px 16px;font-weight:900;box-shadow:0 4px 0 #e5def8}.stat b{color:var(--purple)}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.8fr);gap:18px;align-items:start}.panel{background:#ffffffed;border:3px solid white;border-radius:24px;padding:18px;box-shadow:0 12px 28px #51458c18}
+.tag{display:inline-block;background:#fff0b8;color:#765100;padding:7px 13px;border-radius:30px;font-size:.82rem;font-weight:900}
+h2{color:#5942c5;margin:11px 0}.instruction{line-height:1.55;margin:8px 0 14px}
+.story{position:relative;background:#fffdf7;border:2px dashed #c6b8ff;border-radius:18px;padding:16px;line-height:1.62;overflow:hidden}
+.story h3{text-align:center;color:#573dc7;margin:0 0 12px;font-size:1.35rem}
+.story p{margin:0 0 10px;position:relative;z-index:1}.speaker{font-weight:900;color:#654bd2}
+.target{display:inline-block;border-radius:7px;padding:0 2px;cursor:pointer;transition:.15s;position:relative;z-index:1}.target:hover{background:#fff0a8}.target.found{background:#c9f8e8;outline:2px solid #24b889;text-decoration:underline;text-decoration-color:#159b72;text-decoration-thickness:2px}
+#drawLayer{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+.progressline{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-weight:900;margin:14px 0 6px}.progressbar{height:13px;background:#eee9ff;border-radius:20px;overflow:hidden}.progressfill{height:100%;width:0;background:linear-gradient(90deg,#55d6be,#7b65ee);transition:width .25s}
+.feedback{min-height:30px;margin:12px 0 0;font-weight:900;color:#5c45c8}
+.controls{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}button{border:0;border-radius:13px;padding:11px 16px;background:var(--purple);color:white;font-weight:900;font-size:1rem;cursor:pointer;box-shadow:0 4px 0 #4935ae}button.alt{background:var(--yellow);color:#654900;box-shadow:0 4px 0 #d5a72e}button:active{transform:translateY(2px);box-shadow:0 2px 0 #4935ae}
+.camera{background:#17223a;border-radius:18px;overflow:hidden;aspect-ratio:4/3;border:4px solid #e8e1ff;position:relative}video{display:none}#camCanvas{display:block;width:100%;height:100%;transform:scaleX(-1)}
+.camstatus{font-size:.88rem;font-weight:800;color:#68738c;margin:10px 0}.dot{display:inline-block;width:9px;height:9px;background:#ffb64d;border-radius:50%;margin-right:6px}.dot.on{background:#22bf8c}
+.how{background:#fff5d6;padding:12px;border-radius:15px;font-size:.9rem;line-height:1.55}.answers-key{margin-top:12px;background:#f1edff;border-radius:14px;padding:11px;font-size:.86rem;line-height:1.5}
+.note{text-align:center;color:#77809a;font-size:.8rem;margin:13px}
+.overlay{position:fixed;inset:0;background:#18223acc;display:flex;align-items:center;justify-content:center;padding:18px;z-index:10}.modal{width:min(490px,100%);background:white;border-radius:25px;padding:26px;text-align:center;box-shadow:0 20px 60px #0004}.modal h2{font-size:1.8rem}.modal p{line-height:1.6}.big{font-size:2.4rem;color:var(--purple);font-weight:1000}.hidden{display:none!important}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.panel{padding:14px}.story{padding:12px;font-size:.94rem}}
+</style></head>
+<body>
+<header><h1>⭕ Circle the Correct Answer!</h1><p class="sub">Bahasa Melayu Tahun 5 · Kata Ganda Penuh</p></header>
+<main class="wrap">
+ <div class="stats">
+  <div class="stat">⭐ Skor: <b id="score">0</b></div><div class="stat">⏱️ Masa: <b id="timer">420</b>s</div><div class="stat">❤️ Nyawa: <b id="lives">❤️❤️❤️</b></div><div class="stat">⭕ Dijumpai: <b id="foundCount">0/9</b></div>
+ </div>
+ <div class="grid">
+  <section class="panel">
+   <span class="tag">🏛️ SATU MISI · UNIKNYA MUZIUM MINI</span>
+   <h2>Bulatan 7 kata ganda penuh dalam dialog!</h2>
+   <p class="instruction">Baca keseluruhan dialog. Gunakan jari telunjuk untuk melukis bulatan pada setiap kata ganda penuh yang betul. Cari kesemua <b>9 jawapan</b>. Anda juga boleh klik perkataan jika mahu bermain tanpa kamera.</p>
+   <div class="story" id="story">
+    <canvas id="drawLayer"></canvas>
+    <h3>Uniknya Muzium Mini</h3>
+    <p>Aina dan Kumar sedang melawat muzium mini di sekolah bersama-sama Cikgu Farah.</p>
+    <p><span class="speaker">Aina:</span> Wah, cantiknya muzium mini sekolah kita! Banyak bahan sejarah yang dipamerkan di sini.</p>
+    <p><span class="speaker">Kumar:</span> Betul, Aina! Cuba lihat <span class="target" data-answer="gambar-gambar">gambar-gambar</span> tokoh kemerdekaan yang dipamerkan di dinding itu. Mereka banyak berjasa kepada negara kita.</p>
+    <p><span class="speaker">Cikgu Farah:</span> Bagus, Kumar. Kita perlu mengenali tokoh negara dan menghargai pengorbanan mereka demi kemerdekaan Malaysia.</p>
+    <p><span class="speaker">Aina:</span> Cikgu, saya tertarik melihat <span class="target" data-answer="bendera-bendera">bendera-bendera</span> kecil yang disusun di atas meja. Adakah itu bendera <span class="target" data-answer="negeri-negeri">negeri-negeri</span> di Malaysia?</p>
+    <p><span class="speaker">Cikgu Farah:</span> Ya, betul! Setiap negeri mempunyai identiti dan keunikan tersendiri. Kita harus berbangga dengan kepelbagaian negara kita.</p>
+    <p><span class="speaker">Kumar:</span> Wah, pakaian tradisional yang dipamerkan juga <span class="target" data-answer="cantik-cantik">cantik-cantik</span>! Pakaian ini menunjukkan keunikan budaya masyarakat Malaysia.</p>
+    <p><span class="speaker">Aina:</span> Betul! Kita mestilah menghormati budaya kaum lain supaya perpaduan sentiasa terpelihara.</p>
+    <p><span class="speaker">Cikgu Farah:</span> Tepat sekali. Sekarang, mari kita <span class="target" data-answer="lihat-lihat">lihat-lihat</span> bahan pameran di bahagian sebelah sana pula.</p>
+    <p><span class="speaker">Kumar:</span> Cikgu, saya nampak <span class="target" data-answer="buku-buku">buku-buku</span> lama di dalam almari kaca. Apakah kandungannya?</p>
+    <p><span class="speaker">Cikgu Farah:</span> Buku-buku itu menceritakan sejarah perjuangan tokoh terdahulu. Kamu boleh membacanya untuk menambahkan pengetahuan tentang sejarah negara.</p>
+    <p><span class="speaker">Aina:</span> Menariknya! Saya ingin <span class="target" data-answer="tanya-tanya">tanya-tanya</span> kepada datuk saya tentang pengalaman beliau menyambut Hari Kebangsaan dahulu.</p>
+    <p><span class="speaker">Kumar:</span> Saya pula mahu mendengar cerita datuk tentang kehidupan masyarakat pada zaman dahulu.</p>
+    <p><span class="speaker">Cikgu Farah:</span> Bagus! Kamu juga perlu menjaga bahan sejarah ini <span class="target" data-answer="baik-baik">baik-baik</span> supaya dapat diwarisi oleh generasi akan datang.</p>
+    <p><span class="speaker">Aina:</span> Saya berasa bangga menjadi rakyat Malaysia kerana negara kita mempunyai sejarah dan budaya yang unik.</p>
+    <p><span class="speaker">Kumar:</span> Saya juga! Kita mestilah menyayangi negara, menghormati Jalur Gemilang dan hidup bersatu padu.</p>
+    <p><span class="speaker">Cikgu Farah:</span> Syabas, <span class="target" data-answer="anak-anak">anak-anak</span>! Ingatlah bahawa semangat patriotisme bermula dengan mengenali, menghargai dan menjaga warisan negara, anak-anak.</p>
+   </div>
+   <div class="progressline"><span>Kemajuan misi</span><span id="progressText">0 daripada 9 ditemukan</span></div><div class="progressbar"><div class="progressfill" id="progressFill"></div></div>
+   <div class="feedback" id="feedback">Tekan “Mula Permainan” untuk bermula.</div>
+   <div class="controls"><button id="start">▶ Mula Permainan</button><button class="alt" id="sound">🔊 Bunyi: ON</button><button class="alt" id="music">🎵 Muzik: ON</button><button class="alt" id="restart">↻ Mula Semula</button></div>
+  </section>
+  <aside class="panel">
+   <h2>📷 Kamera Pemain</h2>
+   <div class="camera"><video id="video" playsinline></video><canvas id="camCanvas" width="640" height="480"></canvas></div>
+   <div class="camstatus"><span class="dot" id="dot"></span><span id="camStatus">Kamera belum diaktifkan</span></div>
+   <div class="how"><b>✋ Cara bermain dengan tangan</b><br>1. Benarkan akses webcam.<br>2. Lihat diri anda pada paparan kamera.<br>3. Gerakkan jari telunjuk untuk melukis bulatan pada kawasan dialog.<br>4. Bulatkan perkataan sasaran satu demi satu sehingga semua 7 ditemukan.</div>
+   <div class="answers-key"><b>Petunjuk:</b> Terdapat 9 kata ganda penuh daripada tiga jenis kata, iaitu kata nama, kata kerja dan kata adjektif.</div>
+   <p class="note">MediaPipe Hands dimuatkan melalui CDN. Sambungan internet diperlukan.</p>
+  </aside>
+ </div>
+</main>
+<div class="overlay" id="intro"><div class="modal"><h2>🎉 Selamat Datang!</h2><p>Ini ialah <b>satu soalan sahaja</b>. Baca dialog “Uniknya Muzium Mini” dan bulatkan kesemua sembilan kata ganda penuh yang tersembunyi di dalamnya.</p><p>Anda mempunyai <b>7 minit</b> dan <b>3 nyawa</b>.</p><button id="go">Jom Mula!</button></div></div>
+<div class="overlay hidden" id="end"><div class="modal"><h2 id="endTitle">🏆 Misi Selesai!</h2><div class="big" id="final">0 / 900</div><p id="endMsg"></p><button id="again">Main Lagi</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script>
+(()=>{
+"use strict";
+const $=id=>document.getElementById(id);
+const story=$("story"),layer=$("drawLayer"),lctx=layer.getContext("2d"),cam=$("camCanvas"),cctx=cam.getContext("2d"),video=$("video");
+const targets=[...document.querySelectorAll(".target")];
+let found=new Set(),score=0,lives=3,time=420,running=false,soundOn=true,musicOn=true;
+let timer=null,hands=null,camera=null,cameraReady=false,path=[],lastPoint=null,lastCircle=0,audio=null,musicTimer=null,musicStep=0;
+let fingerVisible=false, gestureState="Tunjukkan jari telunjuk kepada kamera";
+const melody=[523.25,659.25,783.99,659.25,587.33,698.46,880,698.46,523.25,659.25,783.99,1046.5,880,783.99,659.25,587.33];
+
+function resizeLayer(){
+ const r=story.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+ layer.width=Math.round(r.width*dpr);layer.height=Math.round(r.height*dpr);
+ layer.style.width=r.width+"px";layer.style.height=r.height+"px";
+ lctx.setTransform(dpr,0,0,dpr,0,0);
+ drawPath();
+}
+if("ResizeObserver" in window)new ResizeObserver(resizeLayer).observe(story);
+window.addEventListener("resize",resizeLayer);resizeLayer();
+
+function audioContext(){
+ if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();
+ if(audio.state==="suspended")audio.resume();
+ return audio;
+}
+function beep(freq=700,duration=.13){
+ if(!soundOn)return;
+ try{const ac=audioContext(),o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(.055,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+duration);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+duration);}catch(e){}
+}
+function playMusicNote(){
+ if(!musicOn||!running)return;
+ try{
+  const ac=audioContext(),freq=melody[musicStep++%melody.length],now=ac.currentTime;
+  const o=ac.createOscillator(),g=ac.createGain(),filter=ac.createBiquadFilter();
+  o.type="sine";o.frequency.setValueAtTime(freq,now);
+  filter.type="lowpass";filter.frequency.value=1500;
+  g.gain.setValueAtTime(.0001,now);g.gain.linearRampToValueAtTime(.018,now+.08);g.gain.exponentialRampToValueAtTime(.0001,now+.65);
+  o.connect(filter);filter.connect(g);g.connect(ac.destination);o.start(now);o.stop(now+.7);
+ }catch(e){}
+}
+function startMusic(){
+ stopMusic();
+ if(!musicOn||!running)return;
+ playMusicNote();musicTimer=setInterval(playMusicNote,620);
+}
+function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null;}}
+function update(){
+ $("score").textContent=score;
+ $("lives").textContent="❤️".repeat(lives)+"🤍".repeat(3-lives);
+ $("foundCount").textContent=found.size+"/9";
+ $("progressText").textContent=found.size+" daripada 9 ditemukan";
+ $("progressFill").style.width=(found.size/9*100)+"%";
+}
+function feedback(message){$("feedback").textContent=message;}
+function selectTarget(el,source="gesture"){
+ if(!running)return;
+ const word=el.dataset.answer;
+ if(found.has(word))return;
+ found.add(word);el.classList.add("found");score+=100;update();
+ feedback("Betul! “"+word+"” berjaya dibulatkan. +100 mata 🌟");
+ beep(850,.18);
+ if(found.size===9)setTimeout(()=>finish(true),650);
+}
+targets.forEach(el=>el.addEventListener("click",()=>selectTarget(el,"click")));
+
+function start(){
+ $("intro").classList.add("hidden");$("end").classList.add("hidden");
+ found=new Set();targets.forEach(t=>t.classList.remove("found"));
+ score=0;lives=3;time=420;running=true;path=[];lastPoint=null;lastCircle=0;
+ update();$("timer").textContent=time;feedback("Misi bermula! Gerakkan jari telunjuk untuk membulatkan 9 jawapan.");
+ clearInterval(timer);timer=setInterval(()=>{
+  if(!running)return;
+  time--;$("timer").textContent=time;
+  if(time<=0)finish(false);
+ },1000);
+ try{audioContext();}catch(e){}
+ beep();startMusic();
+ if(!cameraReady)startCamera();
+}
+function finish(win){
+ if(!running)return;running=false;clearInterval(timer);stopMusic();clearPath();
+ $("endTitle").textContent=win?"🏆 Tahniah! Semua jawapan ditemukan!":"⏰ Permainan Tamat";
+ $("final").textContent=score+" / 900";
+ $("endMsg").textContent=win?"Anda berjaya mengenal pasti kesemua 9 kata ganda penuh!":"Anda menemukan "+found.size+" daripada 9 kata ganda penuh. Teruskan berlatih!";
+ $("end").classList.remove("hidden");beep(win?950:250,.3);
+}
+$("start").onclick=start;$("go").onclick=start;$("restart").onclick=start;$("again").onclick=start;
+$("sound").onclick=()=>{
+ soundOn=!soundOn;$("sound").textContent=soundOn?"🔊 Bunyi: ON":"🔇 Bunyi: OFF";
+ if(soundOn)beep();
+};
+$("music").onclick=()=>{
+ musicOn=!musicOn;$("music").textContent=musicOn?"🎵 Muzik: ON":"🔇 Muzik: OFF";
+ if(musicOn&&running)startMusic();else stopMusic();
+};
+
+function clearPath(){
+ path=[];lastPoint=null;
+ lctx.clearRect(0,0,layer.width,layer.height);
+}
+function drawPath(){
+ const r=story.getBoundingClientRect();
+ lctx.clearRect(0,0,r.width,r.height);
+ if(path.length){
+  lctx.beginPath();lctx.moveTo(path[0].x,path[0].y);
+  for(const p of path.slice(1))lctx.lineTo(p.x,p.y);
+  lctx.strokeStyle="#ff3f91";lctx.lineWidth=5;lctx.lineCap="round";lctx.lineJoin="round";
+  lctx.shadowColor="#ffe45c";lctx.shadowBlur=9;lctx.stroke();lctx.shadowBlur=0;
+  const p=path[path.length-1];lctx.beginPath();lctx.arc(p.x,p.y,7,0,Math.PI*2);
+  lctx.fillStyle="#ff3f91";lctx.fill();lctx.strokeStyle="#fff";lctx.lineWidth=2;lctx.stroke();
+ }
+}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function circleMetrics(points){
+ if(points.length<12)return null;
+ const xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+ const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+ const w=maxX-minX,h=maxY-minY;
+ if(w<24||h<18||w>story.clientWidth*.95||h>story.clientHeight*.95)return null;
+ const aspect=w/h;if(aspect<.38||aspect>2.6)return null;
+ const first=points[0],last=points[points.length-1],closure=distance(first,last);
+ const size=Math.max(w,h);
+ if(closure>size*.48)return null;
+ const cx=(minX+maxX)/2,cy=(minY+maxY)/2,rx=w/2,ry=h/2;
+ // A forgiving ellipse-fit check: most traced points should remain near the ellipse.
+ let errors=[];
+ for(const p of points){
+  const radial=Math.sqrt(((p.x-cx)/rx)**2+((p.y-cy)/ry)**2);
+  errors.push(Math.abs(radial-1));
+ }
+ const meanError=errors.reduce((a,b)=>a+b,0)/errors.length;
+ if(meanError>.48)return null;
+ // Check that the trace covers enough different directions around its centre.
+ const angles=points.map(p=>Math.atan2(p.y-cy,p.x-cx));
+ let bins=new Set(angles.map(a=>Math.floor(((a+Math.PI)/(2*Math.PI))*12)%12));
+ if(bins.size<7)return null;
+ return {minX,maxX,minY,maxY,cx,cy,w,h};
+}
+function pointInPolygon(x,y,poly){
+ let inside=false;
+ for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const a=poly[i],b=poly[j];
+  if(((a.y>y)!=(b.y>y))&&(x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x))inside=!inside;
+ }
+ return inside;
+}
+function pointInTraceOrEllipse(x,y,poly,m){
+ if(pointInPolygon(x,y,poly))return true;
+ const nx=(x-m.cx)/(m.w*.57),ny=(y-m.cy)/(m.h*.57);
+ return nx*nx+ny*ny<=1;
+}
+function detectTarget(points){
+ const m=circleMetrics(points);if(!m)return false;
+ const sr=story.getBoundingClientRect();
+ const hit=targets.filter(el=>{
+  if(found.has(el.dataset.answer))return false;
+  const r=el.getBoundingClientRect();
+  // Use the actual DOM rectangle of the word, not the webcam's pixel coordinates.
+  const left=r.left-sr.left,right=r.right-sr.left,top=r.top-sr.top,bottom=r.bottom-sr.top;
+  const cx=(left+right)/2,cy=(top+bottom)/2;
+  const centreHit=pointInTraceOrEllipse(cx,cy,points,m);
+  const overlap=!(right<m.minX||left>m.maxX||bottom<m.minY||top>m.maxY);
+  return centreHit||overlap;
+ });
+ if(hit.length){
+  // Prefer the target whose centre is nearest to the drawn loop centre.
+  hit.sort((a,b)=>{
+   const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();
+   const da=distance({x:ra.left-sr.left+ra.width/2,y:ra.top-sr.top+ra.height/2},{x:m.cx,y:m.cy});
+   const db=distance({x:rb.left-sr.left+rb.width/2,y:rb.top-sr.top+rb.height/2},{x:m.cx,y:m.cy});
+   return da-db;
+  });
+  selectTarget(hit[0]);return true;
+ }
+ feedback("Bulatan dikesan, tetapi belum meliputi perkataan sasaran. Gerakkan bulatan ke atas perkataan.");
+ beep(380,.1);return false;
+}
+function renderCamera(results){
+ cctx.clearRect(0,0,640,480);
+ if(video.readyState>=2){
+  cctx.save();cctx.translate(640,0);cctx.scale(-1,1);cctx.drawImage(video,0,0,640,480);cctx.restore();
+ }else{
+  cctx.fillStyle="#18223a";cctx.fillRect(0,0,640,480);cctx.fillStyle="white";
+  cctx.font="22px Arial";cctx.textAlign="center";cctx.fillText("Paparan kamera",320,240);
+ }
+ if(results.multiHandLandmarks&&results.multiHandLandmarks.length){
+  for(const lm of results.multiHandLandmarks){
+   if(window.drawConnectors)drawConnectors(cctx,lm,HAND_CONNECTIONS,{color:"#63e6c5",lineWidth:3});
+   if(window.drawLandmarks)drawLandmarks(cctx,lm,{color:"#ffdb62",lineWidth:1,radius:3});
+   const tip=lm[8];cctx.beginPath();cctx.arc((1-tip.x)*640,tip.y*480,10,0,Math.PI*2);
+   cctx.fillStyle="#ff3f91";cctx.fill();cctx.strokeStyle="#fff";cctx.lineWidth=3;cctx.stroke();
+  }
+ }
+}
+function indexFingerExtended(lm){
+ // More tolerant test than comparing fingertip-to-knuckle distances; works with a tilted hand.
+ const tip=lm[8],pip=lm[6],mcp=lm[5];
+ const fingerLength=distance({x:tip.x,y:tip.y},{x:mcp.x,y:mcp.y});
+ const lowerLength=distance({x:pip.x,y:pip.y},{x:mcp.x,y:mcp.y});
+ return fingerLength>lowerLength*1.12;
+}
+function onResults(results){
+ renderCamera(results);
+ if(!running||!results.multiHandLandmarks||!results.multiHandLandmarks.length){
+  if(fingerVisible)feedback("Tangan tidak dikesan. Letakkan tangan dalam kawasan kamera.");
+  fingerVisible=false;clearPath();return;
+ }
+ const lm=results.multiHandLandmarks[0],tip=lm[8];
+ fingerVisible=true;
+ const sr=story.getBoundingClientRect();
+ // Landmark coordinates are normalized to the camera frame. The camera preview is mirrored,
+ // so invert X and map directly to the responsive dialog's CSS-pixel dimensions.
+ const pt={x:(1-tip.x)*sr.width,y:tip.y*sr.height};
+ const extended=indexFingerExtended(lm);
+ if(!extended){
+  if(path.length>=12){
+   const m=circleMetrics(path);
+   if(m&&Date.now()-lastCircle>700){lastCircle=Date.now();detectTarget(path);}
+  }
+  clearPath();return;
+ }
+ if(lastPoint&&distance(pt,lastPoint)>Math.max(sr.width,sr.height)*.22){
+  // A tracking jump is a new stroke, not a reason to lose a life.
+  clearPath();
+ }
+ path.push(pt);if(path.length>240)path.shift();
+ lastPoint=pt;drawPath();
+ feedback("Jari telunjuk dikesan · Lukis bulatan mengelilingi perkataan sasaran.");
+ const m=circleMetrics(path);
+ if(m&&Date.now()-lastCircle>700){
+  lastCircle=Date.now();detectTarget(path);clearPath();
+ }
+}
+async function startCamera(){
+ if(cameraReady)return;
+ if(!navigator.mediaDevices?.getUserMedia){$("camStatus").textContent="Webcam tidak disokong. Klik perkataan untuk memilih.";return;}
+ if(typeof Hands==="undefined"||typeof Camera==="undefined"){$("camStatus").textContent="MediaPipe tidak dapat dimuatkan. Semak internet.";return;}
+ try{
+  hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.55,minTrackingConfidence:.55});
+  hands.onResults(onResults);
+  camera=new Camera(video,{onFrame:async()=>{await hands.send({image:video});},width:640,height:480});
+  await camera.start();cameraReady=true;
+  $("camStatus").textContent="Kamera aktif · Tunjukkan dan gerakkan jari telunjuk";
+  $("dot").classList.add("on");
+ }catch(e){
+  $("camStatus").textContent="Akses kamera gagal. Benarkan kamera atau klik perkataan.";
+  console.error("Camera/MediaPipe error:",e);
+ }
+}
+})();
+</script>
+</body></html>
